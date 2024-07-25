@@ -1,0 +1,43 @@
+﻿@model List<MeetingPassManagementSystem.Models.MeetingPass>
+
+<h2 class="text-center mb-5">Meeting Pass</h2>
+
+<div class="row mb-5">
+    <div class="col">
+        <a class="btn btn-primary" asp-controller="MeetingPass" asp-action="Create">Insert Data</a>
+    </div>
+    <div class="col"></div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Pass ID</th>
+            <th>Meeting Title</th>
+            <th>Meeting Date</th>
+            <th>Meeting Time</th>
+            <th>Pass Status</th>
+            <th>Name</th>
+            <th>Created Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var meetingPass in Model)
+        {
+            <tr>
+                <td>@meetingPass.PassID</td>
+                <td>@meetingPass.MeetingTitle</td>
+                <td>@meetingPass.MeetingDate.ToString("dd-MM-yyyy")</td>
+                <td>@meetingPass.MeetingTime</td>
+                <td>@meetingPass.PassStatus</td>
+                <td>@meetingPass.CreatedBy</td>
+                <td>@meetingPass.CreatedDate.ToString("dd-MM-yyyy")</td>
+                <td style="white-space:nowrap">
+                    <a class="btn btn-primary btn-sm" asp-controller="MeetingPass" asp-action="Edit" asp-route-id="@meetingPass.PassID">Update</a>
+                    <a class="btn btn-danger btn-sm" asp-controller="MeetingPass" asp-action="Delete" asp-route-id="@meetingPass.PassID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
