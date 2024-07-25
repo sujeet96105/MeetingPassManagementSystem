@@ -13,6 +13,6 @@ namespace MeetingPassManagementSystem.Models
         public TimeSpan MeetingTime { get; set; }
         public string? PassStatus { get; set; }
         public string? CreatedBy { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public DateTime? CreatedDate { get; set; }
     }
 }

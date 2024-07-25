@@ -37,6 +37,9 @@ namespace MeetingPassManagementSystem.Controllers
             {
                 try
                 {
+                    // Automatically set CreatedDate to current date and time
+                    model.CreatedDate = DateTime.Now;
+
                     _context.MeetingPasses.Add(model);
                     _context.SaveChanges();
                     return RedirectToAction("Index");
@@ -44,7 +47,7 @@ namespace MeetingPassManagementSystem.Controllers
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error creating meeting pass");
-                    ModelState.AddModelError("", "There was an error creating the meeting pass. Please try again.");
+                    ModelState.AddModelError("", $"There was an error creating the meeting pass: {ex.Message}");
                 }
             }
             else
@@ -54,6 +57,7 @@ namespace MeetingPassManagementSystem.Controllers
 
             return View(model);
         }
+
 
         public IActionResult Edit(int id)
         {

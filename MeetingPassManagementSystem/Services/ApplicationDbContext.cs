@@ -15,9 +15,9 @@ namespace MeetingPassManagementSystem.Services
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MeetingPass>()
-                .Property(p => p.PassID)
-                .ValueGeneratedOnAdd();
-                
+                .Property(m => m.CreatedDate)
+                .HasDefaultValueSql("GETDATE()");
+
         }
     }
 }

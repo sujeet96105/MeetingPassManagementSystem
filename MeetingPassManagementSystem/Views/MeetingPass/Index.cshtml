@@ -32,7 +32,16 @@
                 <td>@meetingPass.MeetingTime</td>
                 <td>@meetingPass.PassStatus</td>
                 <td>@meetingPass.CreatedBy</td>
-                <td>@meetingPass.CreatedDate.ToString("dd-MM-yyyy")</td>
+                <td>
+                    @if (meetingPass.CreatedDate.HasValue)
+                    {
+                        @meetingPass.CreatedDate.Value.ToString("dd-MM-yyyy")
+                    }
+                    else
+                    {
+                        <span>N/A</span>
+                    }
+                </td>
                 <td style="white-space:nowrap">
                     <a class="btn btn-primary btn-sm" asp-controller="MeetingPass" asp-action="Edit" asp-route-id="@meetingPass.PassID">Update</a>
                     <a class="btn btn-danger btn-sm" asp-controller="MeetingPass" asp-action="Delete" asp-route-id="@meetingPass.PassID">Delete</a>

@@ -5,7 +5,7 @@ namespace MeetingPassManagementSystem.Models
     public class InsertData
     {
 
-        [Required]
+        
         [StringLength(50)]
         public string? MeetingTitle { get; set; } = "";
 
@@ -21,6 +21,6 @@ namespace MeetingPassManagementSystem.Models
         [StringLength(50)]
         public required string CreatedBy { get; set; } = "";
 
-        public DateTime CreatedDate { get; set; }
+        public DateTime? CreatedDate { get; set; }
     }
 }
