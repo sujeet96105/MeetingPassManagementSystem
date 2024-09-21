@@ -2,8 +2,6 @@
 using Microsoft.Extensions.Logging;
 using MeetingPassManagementSystem.Models;
 using MeetingPassManagementSystem.Services;
-using System;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace MeetingPassManagementSystem.Controllers
