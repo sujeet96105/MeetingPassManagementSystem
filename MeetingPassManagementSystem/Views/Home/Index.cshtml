@@ -1,12 +1,51 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model IEnumerable<MeetingPassManagementSystem.Models.MeetingPass>
+@using System.Text.Json
+
+
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p class="lead">Welcome to the Meeting Pass Management System</p>
-    <p>Use the navigation menu to manage your meeting passes.</p>
-    <p>
-        <a class="btn btn-primary btn-lg" asp-controller="MeetingPass" asp-action="Index">Manage Meeting Passes</a>
-    </p>
 </div>
+
+<!-- Canvas for Chart.js -->
+<div>
+    <canvas id="chartjs-bar" width="400" height="200"></canvas>
+</div>
+
+<!-- Include Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+<!-- JavaScript to Create Chart -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var chartLabels = @Html.Raw(JsonSerializer.Serialize(ViewBag.ChartLabels ?? new List<string>()));
+        var chartValues = @Html.Raw(JsonSerializer.Serialize(ViewBag.ChartValues ?? new List<int>()));
+
+        var ctx = document.getElementById('chartjs-bar').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Pass Count',
+                    backgroundColor: window.theme ? window.theme.primary : '#007bff',
+                    borderColor: window.theme ? window.theme.primary : '#007bff',
+                    data: chartValues,
+                    barPercentage: 0.75,
+                    categoryPercentage: 0.5
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>

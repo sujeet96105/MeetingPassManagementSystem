@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="_ViewImports.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.12.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Abstractions" Version="8.0.7" />
@@ -18,6 +22,18 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\Database\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="_ViewImports.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="_ViewImports.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="_ViewImports.cshtml" />
   </ItemGroup>
 
 </Project>

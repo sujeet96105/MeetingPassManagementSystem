@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using MeetingPassManagementSystem.Models;
 using MeetingPassManagementSystem.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace MeetingPassManagementSystem.Controllers
 {
@@ -19,9 +17,10 @@ namespace MeetingPassManagementSystem.Controllers
 
         public IActionResult Index()
         {
-            var database = _context.MeetingPasses.ToList();
-            return View(database);
+            var meetingPasses = _context.MeetingPass.ToList(); // Return a list of MeetingPasses
+            return View(meetingPasses); // Pass the collection to the view
         }
+
 
         public IActionResult Create()
         {
@@ -38,7 +37,7 @@ namespace MeetingPassManagementSystem.Controllers
                     // Automatically set CreatedDate to current date and time
                     model.CreatedDate = DateTime.Now;
 
-                    _context.MeetingPasses.Add(model);
+                    _context.MeetingPass.Add(model);
                     _context.SaveChanges();
                     return RedirectToAction("Index");
                 }
@@ -59,7 +58,7 @@ namespace MeetingPassManagementSystem.Controllers
 
         public IActionResult Edit(int id)
         {
-            var meetingPass = _context.MeetingPasses.Find(id);
+            var meetingPass = _context.MeetingPass.Find(id);
             if (meetingPass == null)
             {
                 return NotFound();
@@ -74,7 +73,7 @@ namespace MeetingPassManagementSystem.Controllers
             {
                 try
                 {
-                    _context.MeetingPasses.Update(model);
+                    _context.MeetingPass.Update(model);
                     _context.SaveChanges();
                     return RedirectToAction("Index");
                 }
@@ -95,7 +94,7 @@ namespace MeetingPassManagementSystem.Controllers
         // GET: MeetingPass/Delete/5
         public IActionResult Delete(int id)
         {
-            var meetingPass = _context.MeetingPasses.Find(id);
+            var meetingPass = _context.MeetingPass.Find(id);
             if (meetingPass == null)
             {
                 return NotFound();
@@ -108,21 +107,39 @@ namespace MeetingPassManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var meetingPass = _context.MeetingPasses.Find(id);
+            var meetingPass = _context.MeetingPass.Find(id);
             if (meetingPass == null)
             {
                 return NotFound();
             }
 
-            _context.MeetingPasses.Remove(meetingPass);
+            _context.MeetingPass.Remove(meetingPass);
             _context.SaveChanges();
 
             // Reset the identity seed
-            _context.Database.ExecuteSqlRaw("EXEC ResetIdentity");
+           // _context.Database.ExecuteSqlRaw("EXEC ResetIdentity");
 
             return RedirectToAction("Index");
         }
 
+        // Chart Data Action
+        public IActionResult ChartData(int id)
+        {
+            var meetingPass = _context.MeetingPass
+                                        .OrderBy(m => m.CreatedDate)
+                                        .ToList();
+
+            // Populate ViewBag with data for the chart
+            ViewBag.ChartLabels = meetingPass.Select(m => m.CreatedDate.HasValue
+                                                            ? m.CreatedDate.Value.ToString("yyyy-MM-dd HH:mm")
+                                                            : "N/A").ToList();
+            ViewBag.ChartValues = meetingPass.Select(m => m.PassCount).ToList();
+
+            return View(meetingPass); // Return the list of passes to the view as well
+        }
+
+
 
     }
+
 }
