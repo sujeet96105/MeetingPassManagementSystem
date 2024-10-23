@@ -123,21 +123,18 @@ namespace MeetingPassManagementSystem.Controllers
         }
 
         // Chart Data Action
-        public IActionResult ChartData(int id)
+        // Chart Data Action
+        public IActionResult GetData()
         {
-            var meetingPass = _context.MeetingPass
-                                        .OrderBy(m => m.CreatedDate)
+            var meetingPasses = _context.MeetingPass
+                                        .Select(mp => new {
+                                            Date = mp.CreatedDate.HasValue ? mp.CreatedDate.Value.ToString("yyyy-MM-dd") : null,  // Properly format the date as a string
+                                            Time = mp.PassCount      // Use PassCount for the Y-axis
+                                        })
                                         .ToList();
 
-            // Populate ViewBag with data for the chart
-            ViewBag.ChartLabels = meetingPass.Select(m => m.CreatedDate.HasValue
-                                                            ? m.CreatedDate.Value.ToString("yyyy-MM-dd HH:mm")
-                                                            : "N/A").ToList();
-            ViewBag.ChartValues = meetingPass.Select(m => m.PassCount).ToList();
-
-            return View(meetingPass); // Return the list of passes to the view as well
+            return Json(meetingPasses);
         }
-
 
 
     }
