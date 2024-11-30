@@ -1,64 +1,185 @@
 ﻿@model IEnumerable<MeetingPassManagementSystem.Models.MeetingPass>
 @using System.Text.Json
-
-
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
-<script src="https://code.highcharts.com/modules/export-data.js"></script>
-<script src="https://code.highcharts.com/modules/accessibility.js"></script>
-
-
+@using Newtonsoft.Json
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p class="lead">Welcome to the Meeting Pass Management System</p>
 </div>
 
-<figure class="highcharts-figure">
-    <div id="container"></div>
-    <p class="highcharts-description">
-        This chart shows how data labels can be added to the data series. This
-        can increase readability and comprehension for small datasets.
-    </p>
-</figure>
+@{
+    ViewData["Title"] = "Home Page";
+}
 
+<h2>Meeting Pass Chart</h2>
 
-<script>
-    $(document).ready(function () {
-        $.getJSON("/MeetingPass/GetData", function (data) {
-            var dates = [];
-            var times = [];
+<!-- Inline Styles -->
+<style>
+    .chart-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1000px;
+        margin: 3px;
+    }
 
-            for (var i = 0; i < data.length; i++) {
-                // Ensure proper parsing of date using JavaScript Date functions
-                var rawDate = new Date(data[i].Date); // Convert to Date object
-                var formattedDate = rawDate.toLocaleDateString(); // Format the date as a string
+    .chart-container canvas {
+        width: 48%;
+        height: 300px;
+        margin-bottom: 10px; /* Space between charts on small screens */
+    }
 
-                dates.push(formattedDate);  // Push formatted date
-                times.push(data[i].Time);  // Time is the pass count
+    .date-filter {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        margin: 5px 0;
+    }
+
+    .date-filter label,
+    .date-filter input[type="date"],
+    .btn {
+        margin-right: 10px;
+        margin-bottom: 5px;
+    }
+
+    /* Button Styling */
+    .btn {
+        background-color: white;
+        border: 2px solid #555555;
+        cursor: pointer;
+        padding: 4px 10px;
+        transition: 0.4s;
+    }
+
+    .btn:hover {
+        background-color: black;
+        color: white;
+    }
+
+    /* Date Input Styling */
+    .date-filter input[type="date"] {
+        border: 2px solid #555555;
+        padding: 4px 6px;
+        font-size: 14px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        transition: border-color 0.3s ease;
+    }
+
+    .date-filter input[type="date"]:hover,
+    .date-filter input[type="date"]:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+
+    /* Label Styling */
+    .date-filter label {
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* Media query for small screens */
+    @@media (max-width: 768px) {
+        .chart-container {
+            flex-direction: column; /* Stack charts vertically */
+            align-items: center;
+        }
+
+        .chart-container canvas {
+            width: 100%; /* Full width on small screens */
+        }
+
+        .date-filter {
+            justify-content: center; /* Center date filter on small screens */
+        }
+    }
+</style>
+
+<!-- Chart container and date filter input elements -->
+<div class="date-filter">
+    <label>Start Date: <input type="date" id="startDate"></label>
+    <label>End Date: <input type="date" id="endDate"></label>
+    <button class="btn" onclick="filterData()">Apply Filter</button>
+</div>
+
+<div class="chart-container">
+    <div>
+        <canvas id="lineChart"></canvas>
+    </div>
+    <div>
+        <canvas id="barChart"></canvas>
+    </div>
+</div>
+
+<!-- Include Chart.js from a reliable CDN source -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            initializeCharts();
+            filterData();
+        });
+
+        function filterData() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            let url = '/MeetingPass/GetData';
+
+            if (startDate || endDate) {
+                url += `?${startDate ? `startDate=${startDate}` : ''}${startDate && endDate ? '&' : ''}${endDate ? `endDate=${endDate}` : ''}`;
             }
 
-            Highcharts.chart('container', {
-                chart: {
-                    type: 'line'
-                },
-                title: {
-                    text: 'Pass Count Over Time'
-                },
-                xAxis: {
-                    categories: dates  // Use formatted dates as X-axis categories
-                },
-                yAxis: {
-                    title: {
-                        text: 'Pass Count'
-                    }
-                },
-                series: [{
-                    name: 'Pass Count',
-                    data: times  // Y-axis data is pass count
-                }]
-            });
-        });
-    });
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const labels = data.map(entry => entry.date);
+                    const passCounts = data.map(entry => entry.passCount);
+                    updateCharts(labels, passCounts);
+                })
+                .catch(error => console.error('Error fetching chart data:', error));
+        }
 
-</script>
+        let lineChart, barChart;
+        function initializeCharts() {
+            const lineCtx = document.getElementById('lineChart').getContext('2d');
+            lineChart = new Chart(lineCtx, {
+                type: 'line',
+                data: { labels: [], datasets: [{ label: 'Pass Count', data: [], borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 2, fill: false }] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'category', title: { display: true, text: 'Date' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Pass Count' } }
+                    }
+                }
+            });
+
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: { labels: [], datasets: [{ label: 'Pass Count', data: [], backgroundColor: 'rgba(75, 192, 192, 0.5)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 1 }] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'category', title: { display: true, text: 'Date' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Pass Count' } }
+                    }
+                }
+            });
+        }
+
+        function updateCharts(labels, passCounts) {
+            lineChart.data.labels = labels;
+            lineChart.data.datasets[0].data = passCounts;
+            lineChart.update();
+
+            barChart.data.labels = labels;
+            barChart.data.datasets[0].data = passCounts;
+            barChart.update();
+        }
+    </script>
+}

@@ -23,7 +23,7 @@ namespace MeetingPassManagementSystem.Migrations
                 name: "CreatedDate",
                 table: "MeetingPass",
                 type: "datetime2",
-                nullable: true,
+                nullable: false,
                 defaultValueSql: "GETDATE()",
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2");

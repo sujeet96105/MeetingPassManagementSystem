@@ -1,0 +1,54 @@
+﻿@model MeetingPassManagementSystem.Models.MeetingPass
+
+<h1>Delete Meeting Pass</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Meeting Pass</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Pass ID
+        </dt>
+        <dd class="col-sm-10">
+            @Model.PassID
+        </dd>
+        <dt class="col-sm-2">
+            Meeting Title
+        </dt>
+        <dd class="col-sm-10">
+            @Model.MeetingTitle
+        </dd>
+        <dt class="col-sm-2">
+            Meeting Date
+        </dt>
+        <dd class="col-sm-10">
+            @Model.MeetingDate.ToString("dd/MM/yyyy")
+        </dd>
+        <dt class="col-sm-2">
+            eeting Time
+        </dt>
+        <dd class="col-sm-10">
+            @Model.MeetingTime
+        </dd>
+        <dt class="col-sm-2">
+            Pass Status
+        </dt>
+        <dd class="col-sm-10">
+            @Model.PassStatus
+        </dd>
+        <dt class="col-sm-2">
+            Created By
+        </dt>
+        <dd class="col-sm-10">
+            @Model.CreatedBy
+        </dd>
+       
+    </dl>
+
+    <form asp-action="Delete" method="post" onclick="return confirm('Are you sure?')">
+        <input type="hidden" asp-for="PassID" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </form>
+</div>

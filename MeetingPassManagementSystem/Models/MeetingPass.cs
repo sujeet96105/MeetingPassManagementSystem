@@ -7,7 +7,7 @@ namespace MeetingPassManagementSystem.Models
     public class MeetingPass
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+       
         public int PassID { get; set; }
 
         public string? MeetingTitle { get; set; }
@@ -20,7 +20,8 @@ namespace MeetingPassManagementSystem.Models
 
         public string? CreatedBy { get; set; }
 
-        public DateTime? CreatedDate { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)] // Use Computed to set a default value
+        public DateTime? CreatedDate { get; set; } = DateTime.UtcNow; // Default value
 
         public int PassCount { get; set; }
     }
