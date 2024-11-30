@@ -1,11 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MeetingPassManagementSystem.Models;
 using MeetingPassManagementSystem.Services;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-
-
-
 
 namespace MeetingPassManagementSystem.Controllers
 {
@@ -22,9 +17,8 @@ namespace MeetingPassManagementSystem.Controllers
 
         public IActionResult Index()
         {
-            var meetingPasses = _context.MeetingPass.ToList();
-            TempData["MeetingPassData"] = JsonConvert.SerializeObject(meetingPasses);
-            return View(meetingPasses);
+            var meetingPasses = _context.MeetingPass.ToList(); // Return a list of MeetingPasses
+            return View(meetingPasses); // Pass the collection to the view
         }
 
 
@@ -64,26 +58,13 @@ namespace MeetingPassManagementSystem.Controllers
 
         public IActionResult Edit(int id)
         {
-            try
+            var meetingPass = _context.MeetingPass.Find(id);
+            if (meetingPass == null)
             {
-                var meetingPass = _context.MeetingPass.Find(id);
-                if (meetingPass == null)
-                {
-                    _logger.LogWarning("Meeting pass with ID {id} not found", id);
-                    return NotFound($"Meeting pass with ID {id} not found.");
-                }
-
-                _logger.LogInformation("Retrieved meeting pass: {@MeetingPass}", meetingPass); // Log the meeting pass details
-
-                return View(meetingPass);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while retrieving meeting pass with ID {id}", id);
-                return StatusCode(500, "Internal server error. Please try again later.");
-            }
+            return View(meetingPass);
         }
-
 
         [HttpPost]
         public IActionResult Edit(MeetingPass model)
@@ -92,10 +73,8 @@ namespace MeetingPassManagementSystem.Controllers
             {
                 try
                 {
-                    _context.MeetingPass.Attach(model);
-                    _context.Entry(model).State = EntityState.Modified;
+                    _context.MeetingPass.Update(model);
                     _context.SaveChanges();
-
                     return RedirectToAction("Index");
                 }
                 catch (Exception ex)
@@ -143,38 +122,20 @@ namespace MeetingPassManagementSystem.Controllers
             return RedirectToAction("Index");
         }
 
-        public JsonResult GetData(DateTime? startDate, DateTime? endDate)
+        // Chart Data Action
+        // Chart Data Action
+        public IActionResult GetData()
         {
-            // Start with the base query
-            var query = _context.MeetingPass.AsQueryable();
+            var meetingPasses = _context.MeetingPass
+                                        .Select(mp => new {
+                                            Date = mp.CreatedDate.HasValue ? mp.CreatedDate.Value.ToString("yyyy-MM-dd") : null,  // Properly format the date as a string
+                                            Time = mp.PassCount      // Use PassCount for the Y-axis
+                                        })
+                                        .ToList();
 
-            // Apply the date filters if provided, ensuring both start and end dates are inclusive
-            if (startDate.HasValue)
-            {
-                query = query.Where(mp => mp.CreatedDate.HasValue && mp.CreatedDate.Value.Date >= startDate.Value.Date);
-            }
-            if (endDate.HasValue)
-            {
-                query = query.Where(mp => mp.CreatedDate.HasValue && mp.CreatedDate.Value.Date <= endDate.Value.Date);
-            }
-
-            // Group the filtered data by year, month, and day, and get the pass count
-            var groupedData = query
-                .GroupBy(mp => new
-                {
-                    Year = mp.CreatedDate.Value.Year,
-                    Month = mp.CreatedDate.Value.Month,
-                    Day = mp.CreatedDate.Value.Day
-                })
-                .Select(g => new
-                {
-                    Date = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day).ToString("yyyy-MM-dd"),  // Date string for JavaScript
-                    PassCount = g.Count()
-                })
-                .ToList();
-
-            return Json(groupedData);
+            return Json(meetingPasses);
         }
+
 
     }
 
