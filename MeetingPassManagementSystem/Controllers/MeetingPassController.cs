@@ -22,7 +22,7 @@ namespace MeetingPassManagementSystem.Controllers
 
         public IActionResult Index()
         {
-            var meetingPasses = _context.MeetingPass.ToList();
+            var meetingPasses = _context.MeetingPass.ToList(); // Retrieve all MeetingPass records
             TempData["MeetingPassData"] = JsonConvert.SerializeObject(meetingPasses);
             return View(meetingPasses);
         }
@@ -174,6 +174,37 @@ namespace MeetingPassManagementSystem.Controllers
                 .ToList();
 
             return Json(groupedData);
+        }
+
+        [HttpPost]
+        public IActionResult SubmitReview(Review review, int meetingPassId)
+        {
+            if (ModelState.IsValid)
+            {
+                // Find the associated MeetingPass by ID
+                var meetingPass = _context.MeetingPass.Find(meetingPassId);
+
+                if (meetingPass != null)
+                {
+                    // Set the foreign key to link the review to the MeetingPass
+                    review.MeetingPassId = meetingPass.PassID;
+
+                    // Add the review to the database
+                    _context.Reviews.Add(review);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    // Handle the case where the MeetingPass doesn't exist
+                    ModelState.AddModelError("", "Invalid MeetingPass ID");
+                    return View("Index");
+                }
+
+                // Optionally, you can redirect or update the UI as needed
+                return RedirectToAction("Index");
+            }
+
+            return View("Index");
         }
 
     }

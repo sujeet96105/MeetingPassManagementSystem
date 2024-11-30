@@ -10,6 +10,7 @@ namespace MeetingPassManagementSystem.Services
         {
         }
         public DbSet<MeetingPass> MeetingPass { get; set; }
+        public DbSet<Review>Reviews{ get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

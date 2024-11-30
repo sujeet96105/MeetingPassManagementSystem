@@ -24,5 +24,7 @@ namespace MeetingPassManagementSystem.Models
         public DateTime? CreatedDate { get; set; } = DateTime.UtcNow; // Default value
 
         public int PassCount { get; set; }
+
+        public required ICollection<Review> Reviews { get; set; }
     }
 }

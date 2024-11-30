@@ -115,6 +115,19 @@
 <!-- Include Chart.js from a reliable CDN source -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+@if (Model == null || !Model.Any())
+{
+    <p>No Meeting Passes are available.</p>
+}
+else
+{
+    @foreach (var meetingPasses in Model)
+    {
+        <p>Pass ID: @meetingPasses.PassID</p>
+        <p>Meeting Title: @meetingPasses.MeetingTitle</p>
+    }
+}
+
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -181,5 +194,27 @@
             barChart.data.datasets[0].data = passCounts;
             barChart.update();
         }
+        document.getElementById('reviewForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('/Home/SubmitReview', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Review submitted successfully!');
+                    // Optionally reset the form
+                    document.getElementById('reviewForm').reset();
+                })
+                .catch(error => {
+                    console.error('Error submitting review:', error);
+                    alert('An error occurred. Please try again later.');
+                });
+        });
+
+
     </script>
 }
